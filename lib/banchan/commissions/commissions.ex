@@ -4,6 +4,8 @@ defmodule Banchan.Commissions do
   """
 
   import Ecto.Query, warn: false
+  import FFmpex, warn: false
+  use FFmpex.Options
   require Logger
 
   alias Banchan.Repo
@@ -677,7 +679,18 @@ defmodule Banchan.Commissions do
               image
 
             Uploads.video?(upload) ->
-              nil
+              output_path = Path.join([System.tmp_dir!(), upload.key <> ".jpeg"])
+
+              command =
+                FFmpex.new_command()
+                |> add_input_file(tmp_file)
+                |> add_output_file(output_path)
+                |> add_file_option(option_ss(500))
+                |> add_file_option(option_vframes(1))
+
+              {:ok, _} = execute(command)
+
+              output_path
           end
 
         thumb

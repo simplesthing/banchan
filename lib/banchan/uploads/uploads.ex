@@ -58,7 +58,7 @@ defmodule Banchan.Uploads do
   end
 
   def get_upload!(bucket, key) do
-    Repo.one!(from u in Upload, where: u.bucket == ^bucket and u.key == ^key)
+    Repo.one!(from(u in Upload, where: u.bucket == ^bucket and u.key == ^key))
   end
 
   def save_file!(%User{} = user, src, type, file_name, bucket \\ get_bucket()) do
@@ -66,7 +66,7 @@ defmodule Banchan.Uploads do
     size = File.stat!(src).size
 
     {width, height} =
-      if image?(type) || video?(type) do
+      if image?(type) do
         %{width: width, height: height} = Mogrify.identify(src)
         {width, height}
       else
