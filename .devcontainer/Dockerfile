@@ -28,11 +28,6 @@ ENV PATH=${NVM_DIR}/current/bin:${PATH}
 # [Optional, Choice] Node.js version: none, lts/*, 16, 14, 12, 10
 ARG NODE_VERSION="none"
 
-ARG IM_VERSION=7.1.0-41
-ARG LIB_HEIF_VERSION=1.12.0
-ARG LIB_AOM_VERSION=3.4.0
-ARG LIB_WEBP_VERSION=1.2.2
-
 # Install needed packages and setup non-root user.
 RUN apt-get update \
   && export DEBIAN_FRONTEND=noninteractive \
@@ -50,19 +45,21 @@ RUN apt-get update \
   #
   # Install dependencies
   && apt-get install -y build-essential inotify-tools \
+  # imagemagick & ffmpeg
   && apt-get install -y imagemagick \
+  && apt update && apt install -y ffmpeg \
   #
   # stripe cli
   && curl https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | apt-key add - \
   && echo "deb https://packages.stripe.dev/stripe-cli-debian-local stable main" | sudo tee -a /etc/apt/sources.list \
   && apt update \
   && apt install stripe \
-
+  #
   # Clean up
   && apt-get autoremove -y \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/* /tmp/common-setup.sh /tmp/node-setup.sh 
-  
+
 RUN su ${USERNAME} -c "mix local.hex --force \
   && mix local.rebar --force \
   && mix archive.install --force hex phx_new ${PHOENIX_VERSION}"
